@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/Navier-Stokes_Nozzle.iml" filepath="$PROJECT_DIR$/.idea/Navier-Stokes_Nozzle.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/Navier-Stokes_Nozzle_Simulation.iml" filepath="$PROJECT_DIR$/.idea/Navier-Stokes_Nozzle_Simulation.iml" />
     </modules>
   </component>
 </project>
