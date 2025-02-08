@@ -1,1 +1,1 @@
-# Navier-Stokes Nozzle Simulation
+# Navier-Stokes-Nozzle-Simulation
