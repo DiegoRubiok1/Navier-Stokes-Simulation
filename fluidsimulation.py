@@ -24,7 +24,7 @@ class FluidSimulation:
 
         self.dy = height / Ny   # height must be in meter
         self.dx = width / Nx   # width must be in meter     
-        self.dt = 1        
+        self.dt = 0.001        
 
         # Origin flow
         self.p_zero = p_zero
@@ -55,9 +55,34 @@ class FluidSimulation:
         # Sets a gradient pressure zone for a constant flow
         self.p[1][self.Nx//3 :2 * self.Nx//3] = self.p_zero + gradient_value * 2 * self.dy
 
-    def update_velocity(self):
-        """Uses Navier-Stokes momentum equation"""
+    def update_pressure(self):
+        """Poisson equation for pressure"""
+        # Name simplification
+        p = self.p
+        rho = self.rho
+        u, v = self.u, self.v
+        dy, dx, dt = self.dy, self.dx, self.dt
 
+
+        for i in range(1, len(p) - 1, 1):
+            for j in range(1, len(p[i]) - 1, 1):
+                # velocity gradient
+                v_gradient = (
+                    (u[i+1][j] - u[i-1][j]) / 2*dx + 
+                    (v[i][j+1] - v[i][j-1]) / 2*dy
+                )
+                # calculate pressure with poisson equation discretized
+                p[i][j] = (
+                    (p[i+1][j] + p[i-1][j]) * dy**2 +                   
+                    (p[i][j+1] + p[i][j-1]) * dx**2 - 
+                    rho * v_gradient * (dx**2) * (dy**2)
+                    ) / (2 * ( dx**2 + dy**2))
+    def update_walls(self):
+        """Sets all the walls as surface with u,v = 0"""
+        self.u[0] = self.u[-1] = self.v[0] = self.v[-1] = [0] * self.Nx
+
+    def update_velocity(self):
+        """Navier-Stokes momentum equation"""
         # Name simplification
         dx = self.dx
         dy = self.dy
