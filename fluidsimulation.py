@@ -6,6 +6,7 @@ Universidad Carlos III de Madrid
 import numpy as np
 from constants import AIR_PRESSURE
 
+# TODO: Implement a method for update preassure
 
 class FluidSimulation:
 
@@ -66,25 +67,48 @@ class FluidSimulation:
         u = self.u
         v = self.v
         p = self.p
-        # x direction
+        
         for i in range(1, len(u) - 1, 1):
             for j in range(1, len(u[i]) - 1, 1):
                 
+                #------------------------- u direction -------------------------
                 # Doble spacial derivative of u
                 doble_grdnt_u = (
                     (u[ i + 1][j] - 2*u[i][j] + u[i-1][j])/dx**2 +  
                     (u[i][j+1] - 2*u[i][j] + u[i][j-1])/dy**2
                 )
 
-                # All x direction gradients term
+                # All x direction gradients term for u
                 x_grdnt = ((rho * u[i+1][j]**2 + p[i+1][j]) - 
                            (rho * u[i-1][j]**2 + p[i-1][j])) / (2 * dx)
+                
 
                 # All y direction grandients term
                 y_grdnt = ((rho * u[i][j+1] * v[i][j+1]) - (rho * u[i][j-1] * v[i][j-1])) / (2 * dy)
 
-                # Navier-Stoke momentum equation
+                # Navier-Stoke momentum equation for u
                 u[i][j] = (dt/rho) * (mhu * doble_grdnt_u - x_grdnt - y_grdnt) + u[i][j]
+
+                #------------------------- v direction -------------------------
+                # Doble spacial derivative of v
+                doble_grdnt_v = (
+                    (v[ i + 1][j] - 2*v[i][j] + v[i-1][j])/dx**2 +  
+                    (v[i][j+1] - 2*v[i][j] + v[i][j-1])/dy**2
+                )
+
+                # All y direction gradients term for v
+                v_grdnt = ((rho * v[i][j+1]**2 + p[i][j+1]) - 
+                           (rho * v[i][j-1]**2 + p[i][j-1])) / (2 * dy)
+                
+
+                # All x direction grandients term
+                y_grdnt_v = ((rho * u[i+1][j] * v[i+1][j]) - (rho * u[i-1][j] * v[i-1][j])) / (2 * dx)
+
+                # Navier-Stoke momentum equation for v
+                v[i][j] = (dt/rho) * (mhu * doble_grdnt_v - v_grdnt - y_grdnt_v) + v[i][j]
+
+
+        
         
 
 
