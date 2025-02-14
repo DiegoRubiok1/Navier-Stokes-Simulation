@@ -6,7 +6,6 @@ Universidad Carlos III de Madrid
 import numpy as np
 from constants import AIR_PRESSURE
 
-# TODO: Implement a method for update preassure
 
 class FluidSimulation:
 

@@ -4,6 +4,9 @@ Universidad Carlos III de Madrid
 """
 from fluidsimulation import FluidSimulation
 import pygame
+
+# TODO: define update() and draw()
+
 class Graph:
     """Graphical implement of a 2d cage with water"""
     def __init__(self):
