@@ -18,10 +18,14 @@ class Graph:
             Ny=100, Nx=100, 
             height=1, width=1
             )
+        # Initial pressure matrix
+        self.simulation.p_matrix(
+            self.simulation.Nx, self.simulation.Ny, self.simulation.p_zero
+            )
         
         # Pygame initialize
         pygame.init()
-        self.screen = pygame.display.set_mode((100, 100))
+        self.screen = pygame.display.set_mode((800, 800))
         pygame.display.set_caption("Fluid simulation")
         self.clock = pygame.time.Clock()
         self.font = pygame.font.Font(None, 36)
@@ -37,11 +41,38 @@ class Graph:
 
     def update(self):
         """Actualize the logic of the simulation."""
-        pass
+
+        # Pressure gradient zone actualize
+        self.simulation.set_preassure_gradient(self.simulation.p_gradient)
+
+        # Set the walls with velocity 0
+        self.simulation.update_walls()
+
+        # Update pressure grid
+        self.simulation.update_pressure()
+
+        # Update velocity grid
+        self.simulation.update_velocity()
+
+        
 
     def draw(self):
         """Draws elements in screen"""
-        pass
+        self.screen.fill(0)
+        
+        self.draw_grid()
+
+    def draw_grid(self):
+        """Draws the pressure grid with 8 pixel squares"""
+        for i in range(len(self.simulation.p)):
+            for j in range(len(self.simulation.p[i])):
+                
+                color = (self.simulation.p[i][j], 0, 0) # Color pressure
+                size = 8    # Size
+                pos = (size*j, size*i)  # Position
+                # Draw rectangle
+                pygame.draw.rect(self.screen, color, pos[0], pos[1], size, size)
+        
 
     def run(self):
         """Executes the main loop."""
