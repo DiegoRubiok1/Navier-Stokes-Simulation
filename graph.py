@@ -5,7 +5,7 @@ Universidad Carlos III de Madrid
 from fluidsimulation import FluidSimulation
 import pygame
 
-# TODO: define update() and draw()
+
 
 class Graph:
     """Graphical implement of a 2d cage with water"""
@@ -42,14 +42,14 @@ class Graph:
     def update(self):
         """Actualize the logic of the simulation."""
 
-        # Pressure gradient zone actualize
-        self.simulation.set_preassure_gradient(self.simulation.p_gradient)
-
         # Set the walls with velocity 0
         self.simulation.update_walls()
 
         # Update pressure grid
         self.simulation.update_pressure()
+
+        # Pressure gradient zone actualize
+        self.simulation.set_preassure_gradient(self.simulation.p_gradient)
 
         # Update velocity grid
         self.simulation.update_velocity()
@@ -58,20 +58,28 @@ class Graph:
 
     def draw(self):
         """Draws elements in screen"""
-        self.screen.fill(0)
-        
+
+        self.screen.fill((0, 0, 0))  # black screen
         self.draw_grid()
+        pygame.display.update()      # refresh
+
 
     def draw_grid(self):
         """Draws the pressure grid with 8 pixel squares"""
         for i in range(len(self.simulation.p)):
             for j in range(len(self.simulation.p[i])):
                 
-                color = (self.simulation.p[i][j], 0, 0) # Color pressure
-                size = 8    # Size
-                pos = (size*j, size*i)  # Position
+                color = ( 
+                    ((self.simulation.u[i][j] + self.simulation.v[i][j])*10000)**2, 
+                    0, 0
+                    ) # Color pressure
+                size = 8 #Size
+                pos = (size*j + 1, size*i + 1)  # Position
+                rect = (pos[0], pos[1], size-1, size-1) #rect object
+
                 # Draw rectangle
-                pygame.draw.rect(self.screen, color, pos[0], pos[1], size, size)
+                pygame.draw.rect(self.screen, color, rect)
+
         
 
     def run(self):
