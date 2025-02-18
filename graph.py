@@ -2,10 +2,9 @@
 Created by Diego Rubio Canales in feb 2025
 Universidad Carlos III de Madrid
 """
+
 from fluidsimulation import FluidSimulation
 import pygame
-
-
 
 class Graph:
     """Graphical implement of a 2d cage with water"""
@@ -15,7 +14,7 @@ class Graph:
         self.simulation = FluidSimulation(
             rho=1000, mhu=0.001, 
             p_zero=10, v_gradient=-100, 
-            Ny=300, Nx=300, 
+            Ny=100, Nx=100, 
             height=1, width=1
             )
         # Initial pressure matrix
@@ -31,7 +30,7 @@ class Graph:
         self.font = pygame.font.Font(None, 36)
 
         # Resolution and frame rate
-        self.fps = 3
+        self.fps = 30
         self.dimension = (800, 800)
 
         # Pygame screen initialize
@@ -52,11 +51,8 @@ class Graph:
         # Set the walls with velocity 0
         self.simulation.update_walls()
 
-        # Update pressure grid
-        self.simulation.update_pressure()
-
         # Pressure gradient zone actualize
-        self.simulation.set_velocity_gradient(self.simulation.v_gradient)
+        self.simulation.velocity_gradient(self.simulation.v_gradient)
 
         # Update pressure grid
         self.simulation.update_pressure()
@@ -75,25 +71,35 @@ class Graph:
 
 
     def draw_grid(self):
-        """Draws the pressure grid with 8 pixel squares"""
+        """Draws the pressure grid with  pixel squares"""
         for i in range(len(self.simulation.v)):
             for j in range(len(self.simulation.v[i])):
+
+                # y-velocity(u) and x-velocity(v)
                 v = self.simulation.v[i][j]
                 u = self.simulation.u[i][j]
+
+                # Red color for velocity
                 color = ( 
-                    self.__normalize_v_to_255(u+v), #R
-                    0,  #G
-                    0   #B
-                    ) # Color pressure
-                size = 8 #Size
+                    self.__normalize_v_to_255(u+v), # Red
+                    0,  # Green
+                    0   # Blue
+                    )
+                
+                # Calculate size of each square
+                size = self.dimension[0] // self.simulation.Nx 
+
                 pos = (size*j + 1, size*i + 1)  # Position
                 rect = (pos[0], pos[1], size-1, size-1) #rect object
 
                 # Draw rectangle
+                print(color)
                 pygame.draw.rect(self.screen, color, rect)
     
     def __normalize_v_to_255(self, v: float) -> float:
-        max_v = 4*self.simulation.v_gradient*self.simulation.dy
+        """Normalize velocity value in the range of [0, 255]"""
+
+        max_v = 4 * self.simulation.v_gradient * self.simulation.dy
         min_v = 0
 
         return abs(255 * (v - min_v)/(max_v - min_v))

@@ -40,18 +40,19 @@ class FluidSimulation:
         """Initial pressure matrix method"""
 
         # Initialize all the space at ambient pressure
-        self.p = np.full((Ny, Nx), AIR_PRESSURE) 
+        self.p = np.full((Ny, Nx), AIR_P
+        RESSURE) 
 
         # Set the position of the gas in first row at a desired position
         self.p[0][Nx//3 :2 * Nx//3]   = p_zero 
     
-    def set_velocity_gradient(self, gradient_value):
+    def velocity_gradient(self, gradient_value):
         """Creates a constant velocity gradient to create a constant flow"""
         # Previus grid y-velocity
-        prev_v = self.v[0][self.Nx//3 :2 * self.Nx//3]
+        prev_u = self.u[0][self.Nx//3 :2 * self.Nx//3]
 
         # Sets a gradient pressure zone for a constant flow
-        self.v[1][self.Nx//3 :2 * self.Nx//3] = prev_v.copy() + gradient_value * 2 * self.dy
+        self.u[1][self.Nx//3 :2 * self.Nx//3] = prev_u.copy() + gradient_value * 2 * self.dy
 
     def update_pressure(self):
         """Poisson equation for pressure"""
@@ -81,7 +82,7 @@ class FluidSimulation:
         """Sets all the walls as surface with u,v = 0"""
         self.u[0] = self.u[-1] = self.v[0] = self.v[-1] = [0] * self.Nx
 
-        for i in range(self.u):
+        for i in range(len(self.u)):
             self.u[i][0] = self.u[i][-1] = self.v[i][0] = self.v[i][-1] = 0
 
     def update_velocity(self):
