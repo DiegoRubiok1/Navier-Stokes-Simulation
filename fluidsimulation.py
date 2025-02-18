@@ -40,8 +40,7 @@ class FluidSimulation:
         """Initial pressure matrix method"""
 
         # Initialize all the space at ambient pressure
-        self.p = np.full((Ny, Nx), AIR_P
-        RESSURE) 
+        self.p = np.full((Ny, Nx), AIR_PRESSURE) 
 
         # Set the position of the gas in first row at a desired position
         self.p[0][Nx//3 :2 * Nx//3]   = p_zero 

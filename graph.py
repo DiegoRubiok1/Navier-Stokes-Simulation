@@ -92,14 +92,14 @@ class Graph:
                 pos = (size*j + 1, size*i + 1)  # Position
                 rect = (pos[0], pos[1], size-1, size-1) #rect object
 
-                # Draw rectangle
-                print(color)
-                pygame.draw.rect(self.screen, color, rect)
+                if color[0] < 255:
+                    pygame.draw.rect(self.screen, color, rect)
+                else: pygame.draw.rect(self.screen, (255, 0, 0), rect)
     
     def __normalize_v_to_255(self, v: float) -> float:
         """Normalize velocity value in the range of [0, 255]"""
 
-        max_v = 4 * self.simulation.v_gradient * self.simulation.dy
+        max_v = abs(4 * self.simulation.v_gradient * self.simulation.dy)
         min_v = 0
 
         return abs(255 * (v - min_v)/(max_v - min_v))
