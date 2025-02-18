@@ -9,7 +9,7 @@ from constants import AIR_PRESSURE
 
 class FluidSimulation:
 
-    def __init__(self, rho: float, mhu: float, p_zero: float, p_gradient: float, Ny: int, Nx: int, height: float, width: float):
+    def __init__(self, rho: float, mhu: float, p_zero: float, v_gradient: float, Ny: int, Nx: int, height: float, width: float):
 
         # Density
         self.rho = rho
@@ -27,7 +27,7 @@ class FluidSimulation:
 
         # Origin flow
         self.p_zero = p_zero
-        self.p_gradient = p_gradient
+        self.v_gradient = v_gradient
 
         # Velocity field
         self.v = np.zeros((Ny, Nx))   # Vertical
@@ -45,14 +45,13 @@ class FluidSimulation:
         # Set the position of the gas in first row at a desired position
         self.p[0][Nx//3 :2 * Nx//3]   = p_zero 
     
-    def set_preassure_gradient(self, gradient_value):
-        """Creates a constant pressure gradient to create a constant flow"""
+    def set_velocity_gradient(self, gradient_value):
+        """Creates a constant velocity gradient to create a constant flow"""
+        # Previus grid y-velocity
+        prev_v = self.v[0][self.Nx//3 :2 * self.Nx//3]
 
-        # Sets a constant initial preasure zone
-        self.p[0][self.Nx//3 :2 * self.Nx//3] = self.p_zero
-        
         # Sets a gradient pressure zone for a constant flow
-        self.p[1][self.Nx//3 :2 * self.Nx//3] = self.p_zero + gradient_value * 2 * self.dy
+        self.v[1][self.Nx//3 :2 * self.Nx//3] = prev_v.copy() + gradient_value * 2 * self.dy
 
     def update_pressure(self):
         """Poisson equation for pressure"""
@@ -76,9 +75,14 @@ class FluidSimulation:
                     (p[i][j+1] + p[i][j-1]) * dx**2 - 
                     rho * v_gradient * (dx**2) * (dy**2)
                     ) / (2 * ( dx**2 + dy**2))
+    
+        
     def update_walls(self):
         """Sets all the walls as surface with u,v = 0"""
         self.u[0] = self.u[-1] = self.v[0] = self.v[-1] = [0] * self.Nx
+
+        for i in range(self.u):
+            self.u[i][0] = self.u[i][-1] = self.v[i][0] = self.v[i][-1] = 0
 
     def update_velocity(self):
         """Navier-Stokes momentum equation"""
@@ -111,7 +115,7 @@ class FluidSimulation:
                 y_grdnt = ((rho * u[i][j+1] * v[i][j+1]) - (rho * u[i][j-1] * v[i][j-1])) / (2 * dy)
 
                 # Navier-Stoke momentum equation for u
-                u[i][j] = (dt/rho) * (mhu * doble_grdnt_u - x_grdnt - y_grdnt) + u[i][j]
+                u[i][j] = (dt/rho) * ((mhu/rho) * doble_grdnt_u - x_grdnt - y_grdnt) + u[i][j]
 
                 #------------------------- v direction -------------------------
                 # Doble spacial derivative of v
@@ -129,7 +133,7 @@ class FluidSimulation:
                 y_grdnt_v = ((rho * u[i+1][j] * v[i+1][j]) - (rho * u[i-1][j] * v[i-1][j])) / (2 * dx)
 
                 # Navier-Stoke momentum equation for v
-                v[i][j] = (dt/rho) * (mhu * doble_grdnt_v - v_grdnt - y_grdnt_v) + v[i][j]
+                v[i][j] = (dt/rho) * ((mhu/rho) * doble_grdnt_v - v_grdnt - y_grdnt_v) + v[i][j]
 
 
         

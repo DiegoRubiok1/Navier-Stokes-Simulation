@@ -14,8 +14,8 @@ class Graph:
         # Fluid simulation instance
         self.simulation = FluidSimulation(
             rho=1000, mhu=0.001, 
-            p_zero=10, p_gradient=-1, 
-            Ny=100, Nx=100, 
+            p_zero=10, v_gradient=-100, 
+            Ny=300, Nx=300, 
             height=1, width=1
             )
         # Initial pressure matrix
@@ -25,11 +25,18 @@ class Graph:
         
         # Pygame initialize
         pygame.init()
-        self.screen = pygame.display.set_mode((800, 800))
-        pygame.display.set_caption("Fluid simulation")
+
+        # Clock instance
         self.clock = pygame.time.Clock()
         self.font = pygame.font.Font(None, 36)
+
+        # Resolution and frame rate
         self.fps = 3
+        self.dimension = (800, 800)
+
+        # Pygame screen initialize
+        self.screen = pygame.display.set_mode(self.dimension)
+        pygame.display.set_caption("Fluid simulation")
 
     
     def handle_events(self):
@@ -49,7 +56,10 @@ class Graph:
         self.simulation.update_pressure()
 
         # Pressure gradient zone actualize
-        self.simulation.set_preassure_gradient(self.simulation.p_gradient)
+        self.simulation.set_velocity_gradient(self.simulation.v_gradient)
+
+        # Update pressure grid
+        self.simulation.update_pressure()
 
         # Update velocity grid
         self.simulation.update_velocity()
@@ -66,12 +76,14 @@ class Graph:
 
     def draw_grid(self):
         """Draws the pressure grid with 8 pixel squares"""
-        for i in range(len(self.simulation.p)):
-            for j in range(len(self.simulation.p[i])):
-                
+        for i in range(len(self.simulation.v)):
+            for j in range(len(self.simulation.v[i])):
+                v = self.simulation.v[i][j]
+                u = self.simulation.u[i][j]
                 color = ( 
-                    ((self.simulation.u[i][j] + self.simulation.v[i][j])*10000)**2, 
-                    0, 0
+                    self.__normalize_v_to_255(u+v), #R
+                    0,  #G
+                    0   #B
                     ) # Color pressure
                 size = 8 #Size
                 pos = (size*j + 1, size*i + 1)  # Position
@@ -79,8 +91,13 @@ class Graph:
 
                 # Draw rectangle
                 pygame.draw.rect(self.screen, color, rect)
+    
+    def __normalize_v_to_255(self, v: float) -> float:
+        max_v = 4*self.simulation.v_gradient*self.simulation.dy
+        min_v = 0
 
-        
+        return abs(255 * (v - min_v)/(max_v - min_v))
+     
 
     def run(self):
         """Executes the main loop."""
