@@ -4,4 +4,4 @@ Universidad Carlos III de Madrid
 """
 
 
-AIR_PRESSURE = 9
+AIR_PRESSURE = 0.2

@@ -13,8 +13,8 @@ class Graph:
         # Fluid simulation instance
         self.simulation = FluidSimulation(
             rho=1000, mhu=0.001, 
-            p_zero=10, v_gradient=-100, 
-            Ny=100, Nx=100, 
+            p_zero=10, v_gradient= 1, 
+            Ny=40, Nx=40, 
             height=1, width=1
             )
         # Initial pressure matrix
@@ -52,14 +52,13 @@ class Graph:
         self.simulation.update_walls()
 
         # Pressure gradient zone actualize
-        self.simulation.velocity_gradient(self.simulation.v_gradient)
+        self.simulation.constant_velocity(self.simulation.v_gradient)
 
         # Update pressure grid
         self.simulation.update_pressure()
 
         # Update velocity grid
         self.simulation.update_velocity()
-
         
 
     def draw(self):
@@ -99,7 +98,7 @@ class Graph:
     def __normalize_v_to_255(self, v: float) -> float:
         """Normalize velocity value in the range of [0, 255]"""
 
-        max_v = abs(4 * self.simulation.v_gradient * self.simulation.dy)
+        max_v = abs(self.simulation.v_gradient)
         min_v = 0
 
         return abs(255 * (v - min_v)/(max_v - min_v))

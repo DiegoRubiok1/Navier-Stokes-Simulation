@@ -23,7 +23,7 @@ class FluidSimulation:
 
         self.dy = height / Ny   # height must be in meter
         self.dx = width / Nx   # width must be in meter     
-        self.dt = 0.001        
+        self.dt = 0.0001        
 
         # Origin flow
         self.p_zero = p_zero
@@ -45,13 +45,10 @@ class FluidSimulation:
         # Set the position of the gas in first row at a desired position
         self.p[0][Nx//3 :2 * Nx//3]   = p_zero 
     
-    def velocity_gradient(self, gradient_value):
+    def constant_velocity(self, velocity):
         """Creates a constant velocity gradient to create a constant flow"""
-        # Previus grid y-velocity
-        prev_u = self.u[0][self.Nx//3 :2 * self.Nx//3]
-
-        # Sets a gradient pressure zone for a constant flow
-        self.u[1][self.Nx//3 :2 * self.Nx//3] = prev_u.copy() + gradient_value * 2 * self.dy
+        # Sets a constant velocity zone
+        self.u[1][self.Nx//3 :2 * self.Nx//3] = velocity
 
     def update_pressure(self):
         """Poisson equation for pressure"""
@@ -66,16 +63,18 @@ class FluidSimulation:
             for j in range(1, len(p[i]) - 1, 1):
                 # velocity gradient
                 v_gradient = (
-                    (u[i+1][j] - u[i-1][j]) / 2*dx + 
-                    (v[i][j+1] - v[i][j-1]) / 2*dy
+                    (u[i+1][j] - u[i-1][j]) / (2*dx) + 
+                    (v[i][j+1] - v[i][j-1]) / (2*dy)
                 )
                 # calculate pressure with poisson equation discretized
+
                 p[i][j] = (
                     (p[i+1][j] + p[i-1][j]) * dy**2 +                   
                     (p[i][j+1] + p[i][j-1]) * dx**2 - 
                     rho * v_gradient * (dx**2) * (dy**2)
                     ) / (2 * ( dx**2 + dy**2))
-    
+
+                p[i][j] = min(2**63, p[i][j])
         
     def update_walls(self):
         """Sets all the walls as surface with u,v = 0"""
